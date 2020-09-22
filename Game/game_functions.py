@@ -1,6 +1,7 @@
 import sys
 import pygame
 
+from alien import Alien
 from bullet import Bullet
 
 
@@ -35,7 +36,7 @@ def check_events(ai_settings, screen, ship, bullets):
             check_keyup_events(event, ship)
 
 
-def update_screen(ai_settings, screen, ship, bullets):
+def update_screen(ai_settings, screen, ship, aliens, bullets):
     # 每次循环时，都会重绘屏幕
     # 填充背景色
     screen.fill(ai_settings.bg_color)
@@ -46,6 +47,9 @@ def update_screen(ai_settings, screen, ship, bullets):
 
     # 绘制飞船
     ship.blitme()
+
+    # 绘制外星人
+    aliens.draw(screen)
 
     # 让最近绘制的屏幕可见，不断更新屏幕
     pygame.display.flip()
@@ -68,3 +72,42 @@ def fire_bullet(ai_settings, screen, ship, bullets):
         # 创建一个子弹，并将其加入编组中
         new_bullet = Bullet(ai_settings, screen, ship)
         bullets.add(new_bullet)
+
+
+def create_fleet(ai_settings, screen, ship, aliens):
+    alien = Alien(ai_settings, screen)
+
+    number_aliens_x = get_number_aliens_x(ai_settings, alien.rect.width)
+    number_rows = get_number_rows(
+        ai_settings, ship.rect.height, alien.rect.height
+    )
+    for row_number in range(number_rows):
+        for alien_number in range(number_aliens_x):
+            create_alien(ai_settings, screen, aliens, alien_number, row_number)
+
+
+def get_number_aliens_x(ai_settings, alien_width):
+    # 窗口宽度减去两个外星人的宽度为可利用宽度
+    available_space_x = ai_settings.screen_width - 2 * alien_width
+    # 水平位置上存放外星人的数目
+    number_aliens_x = int(available_space_x / (2 * alien_width))
+    return number_aliens_x
+
+
+def create_alien(ai_settings, screen, aliens, alien_number, row_number):
+    # 创建一个外星人并将其加入当前行
+    alien = Alien(ai_settings, screen)
+    # 一个外星人的宽度
+    alien_width = alien.rect.width
+    # 乘二是为了算空白部分(即两个外星人之间的剩余空间)
+    alien.x = alien_width + 2 * alien_width * alien_number
+    alien.rect.x = alien.x
+    alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
+    aliens.add(alien)
+
+
+def get_number_rows(ai_settings, ship_height, alien_height):
+    available_space_y = (ai_settings.screen_height -
+                         (3 * alien_height) - ship_height)
+    number_rows = int(available_space_y / (2 * alien_height))
+    return number_rows
