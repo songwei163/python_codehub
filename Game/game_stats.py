@@ -3,7 +3,8 @@ class GameStats:
     def __init__(self, ai_settings):
         # 初始化统计信息
         self.ai_settings = ai_settings
-        self.game_active = True
+        # 默认处于非活动状态
+        self.game_active = False
         self.reset_stats()
 
     def reset_stats(self):
